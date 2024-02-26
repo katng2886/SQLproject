@@ -18,6 +18,8 @@ DROP TABLE ACCTMANAGER CASCADE CONSTRAINTS;
 
 DROP TABLE ACCTBONUS CASCADE CONSTRAINTS;
 
+DROP TABLE TESTING;
+
 CREATE TABLE CUSTOMERS (
   CUSTOMER# NUMBER(4),
   LASTNAME VARCHAR2(10) NOT NULL,
@@ -1285,90 +1287,227 @@ CREATE TABLE ACCTBONUS (
   CONSTRAINT ACCTBONUS_AMID_PK PRIMARY KEY (AMID)
 );
 
+CREATE TABLE TESTING (
+  ID NUMBER(2),
+  TVALUE VARCHAR2(10),
+  DESCRIP VARCHAR2(50)
+);
+
+INSERT INTO TESTING VALUES (
+  1,
+  '%ccAccT',
+  'Value starts with special character'
+);
+
+INSERT INTO TESTING VALUES (
+  2,
+  NULL,
+  'Value is NULL'
+);
+
+INSERT INTO TESTING VALUES (
+  3,
+  'bccAccT',
+  'Value starts with a lowercase b'
+);
+
+INSERT INTO TESTING VALUES (
+  4,
+  '1ccAccT',
+  'Value starts with a number'
+);
+
+INSERT INTO TESTING VALUES (
+  5,
+  'BccAccT',
+  'Value starts with an uppercase B'
+);
+
+INSERT INTO TESTING VALUES (
+  6,
+  'CccAccT',
+  'Value starts with an uppercase C'
+);
+
+INSERT INTO TESTING VALUES (
+  7,
+  ' ccAccT',
+  'Value starts with a blank character'
+);
+
 COMMIT;
 
 -- NGOC (Katie) NGUYEN
--- Add a new row in the orders table with the following data: Order#= 1021, Customer#=1009, Orderdate = July 20, 2009. DELETE
-INSERT INTO ORDERS (
-  ORDER#,
-  CUSTOMER#,
-  ORDERDATE
-) VALUES (
-  1021,
-  1009,
-  '20-July-2009'
-);
-
+-- 1. Which customer live in NJ? List each customer's last name, first name and state
 SELECT
-  *
+  LASTNAME,
+  FIRSTNAME,
+  STATE
 FROM
-  ORDERS;
+  CUSTOMERS
+WHERE
+  STATE = 'NJ';
 
 -- NGOC (Katie) NGUYEN
--- Modify the zipcode on order 1017 to 33222.
+-- 2. Which orders shipped after April 1, 2009. List each order number and date it shipped.
 SELECT
-  SHIPZIP
+  ORDER#,
+  SHIPDATE
 FROM
   ORDERS
 WHERE
-  ORDER#=1017;
+  SHIPDATE > '1-Apr-2009';
 
-UPDATE ORDERS
-SET
-  SHIPZIP = 33222
-WHERE
-  ORDER#= 1017;
+-- DATE AFTER
+
+
 
 -- NGOC (Katie) NGUYEN
--- Save the changes permanently to the DATABASE
-COMMIT;
+-- 3. Which books arent in the Fitness category? List each book title and category.
+SELECT
+  TITLE,
+  CATEGORY
+FROM
+  BOOKS
+WHERE
+  CATEGORY = 'FITNESS';
 
--- Add a new row to the orders table with the following data: Order#=1022, Customer#=2000, Order date = August 6, 2009.
-INSERT INTO ORDERS (
-  ORDER#,
+-- NGOC (Katie) NGUYEN
+-- 4. Which customers live in Georgia or NJ? Put the results in asc order by last name.
+--List each customer's customer#, lastname and state. Do this in 2 different ways
+SELECT
   CUSTOMER#,
-  ORDERDATE
-) VALUES (
-  1022,
-  2000,
-  '06-Aug-2009'
-);
+  LASTNAME,
+  STATE
+FROM
+  CUSTOMERS
+WHERE
+  STATE = 'NJ'
+  OR STATE = 'GA'
+ORDER BY
+  LASTNAME ASC;
+
+SELECT
+  CUSTOMER#,
+  LASTNAME,
+  STATE
+FROM
+  CUSTOMERS
+WHERE
+  STATE IN ('NJ', 'GA')
+ORDER BY
+  LASTNAME ASC;
 
 -- NGOC (Katie) NGUYEN
--- Add a new row to the orders table with the following data: Order#=1023, Customer#1009.
-INSERT INTO ORDERS (
+-- 5. WHich orders were placed on or before April 1, 2009? List each other number and order date. Write in 2 different ways
+SELECT
   ORDER#,
-  CUSTOMER#
-) VALUES (
-  1023,
-  1009
-);
-
--- NGOC (Katie) NGUYEN
--- Create a script using substitution varaiables that allows a user to set a new cost amount for a book based on the ISBN.
-UPDATE BOOKS
-SET
-  COST = &COST
+  ORDERDATE
+FROM
+  ORDERS
 WHERE
-  ISBN = '&isbn';
+  ORDERDATE <= '1-Apr-2009';
 
---Execute the script and set the following values: isbn = 1059831198, cost= 20. DELETE
-
-
--- NGOC (Katie) NGUYEN
---Execute the command that undoes the change in step 7
-ROLLBACK;
-
--- NGOC (Katie) NGUYEN
--- Delete Order#1005. You need to address both the master order record and the related detail record.
-DELETE FROM ORDERITEMS
+SELECT
+  ORDER#,
+  ORDERDATE
+FROM
+  ORDERS
 WHERE
-  ORDER#=1005;
-
-DELETE FROM ORDERS
-WHERE
-  ORDER#=1005;
+  ORDERDATE < '2-Apr-2009';
 
 -- NGOC (Katie) NGUYEN
--- Execute the command that undoes the previous deletion.
-ROLLBACK;
+-- 6. List all the authors whose last name contains the letter pattern 'IN'. Put the results in order of last name, then first name.
+SELECT
+  LNAME,
+  FNAME
+FROM
+  AUTHOR
+WHERE
+  LNAME LIKE '%IN%';
+
+-- NGOC (Katie) NGUYEN
+-- 7. List all customers who were referred to the bookstore by another customer. List each customer's last name, and the number of the customer who made the referral.
+SELECT
+  LASTNAME,
+  REFERRED
+FROM
+  CUSTOMERS
+WHERE
+  REFERRED IS NOT NULL;
+
+-- NGOC (Katie) NGUYEN
+-- 8. Display the book title and category for all books in the Children and Cooking categories. Create 3 different queris to accomplish this task:
+-- a. A search pattern operation.
+SELECT
+  TITLE,
+  CATEGORY
+FROM
+  BOOKS
+WHERE
+  CATEGORY IN ('CHILDREN', 'COOKING');
+
+-- b. A logical operator, and
+SELECT
+  TITLE,
+  CATEGORY
+FROM
+  BOOKS
+WHERE
+  CATEGORY = 'CHILDREN'
+  OR CATEGORY = 'COOKING';
+
+-- c. Another opertor not used in a or b
+SELECT
+  TITLE,
+  CATEGORY
+FROM
+  BOOKS
+WHERE
+  CATEGORY LIKE 'CHI_D_EN'
+  OR CATEGORY LIKE '%KING';
+
+-- NGOC (Katie) NGUYEN
+-- 9. Use the search pattern to find any book title with "A" for the second letter and "N" for fourth letter. List each book's ISBN and title. Sort the list by title in the descendng order. DELETE
+SELECT
+  ISBN,
+  TITLE
+FROM
+  BOOKS
+WHERE
+  TITLE LIKE '_A_N%'
+ORDER BY
+  TITLE DESC;
+
+-- NGOC (Katie) NGUYEN
+-- List the title publish date of any computer book published in 2005. Perform the task of searching for the publish data using 3 different methods:
+-- a. a range operator
+SELECT
+  TITLE,
+  PUBDATE
+FROM
+  BOOKS
+WHERE
+  CATEGORY = 'COMPUTER'
+  AND (PUBDATE BETWEEN '01-Jan-2005'
+  AND '31-Dec-2005');
+
+-- b. a logical operator:
+SELECT
+  TITLE,
+  PUBDATE
+FROM
+  BOOKS
+WHERE
+  CATEGORY IN ('COMPUTER')
+  AND EXTRACT (YEAR FROM PUBDATE) = 2005;
+
+-- c. a search pattern operation:
+SELECT
+  TITLE,
+  PUBDATE
+FROM
+  BOOKS
+WHERE
+  CATEGORY LIKE ('%PUTER')
+  AND EXTRACT (YEAR FROM PUBDATE) LIKE '%05'
